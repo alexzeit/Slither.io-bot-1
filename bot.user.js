@@ -1080,8 +1080,7 @@ var bot = window.bot = (function (window) {
 				bot.encircleDanger=2;
 
                 bot.headingBestAngle();
-                window.setAcceleration(bot.defaultAccel);
-
+                
                 if (window.visualDebugging) {
                     canvas.drawCircle(canvas.circle(
                         window.snake.xx,
@@ -1410,8 +1409,8 @@ var bot = window.bot = (function (window) {
             var pastTargetPoint = bot.smoothPoint(pastTargetPointT);
 
             // look for danger from enemies
-            var enemyBodyOffsetDelta = 0.3 * bot.snakeWidth;
-            var enemyHeadDist2 = 84 * 84 * bot.snakeWidth * bot.snakeWidth;
+            var enemyBodyOffsetDelta = 0.5 * bot.snakeWidth;
+            var enemyHeadDist2 = 328 * 328 * bot.snakeWidth * bot.snakeWidth;
             for (let snake = 0, snakesNum = window.snakes.length; snake < snakesNum; snake++) {
                 if (window.snakes[snake].id !== window.snake.id
                     && window.snakes[snake].alive_amt === 1) {
@@ -1533,7 +1532,7 @@ var bot = window.bot = (function (window) {
             if (headProx > 0) {
                 headProx = 0.125 * headProx * headProx;
             } else {
-                headProx = - 0.5 * headProx * headProx;
+                headProx = - 0.8 * headProx * headProx;
             }
             targetCourse = Math.min(targetCourse, headProx);
             // enemy body nearby?
@@ -1547,7 +1546,7 @@ var bot = window.bot = (function (window) {
                 y: bot.opt.followCircleTarget.y - head.y
             });
             var driftQ = targetDir.x * closePointNormal.x + targetDir.y * closePointNormal.y;
-            var allowTail = bot.snakeWidth * (2 - 0.5 * driftQ);
+            var allowTail = bot.snakeWidth * (2 - 0.8 * driftQ);
             // a line in the direction of the target point
             if (window.visualDebugging) {
                 canvas.drawLine(
@@ -1678,7 +1677,7 @@ var bot = window.bot = (function (window) {
             }
 
             window.setAcceleration(bot.defaultAccel);
-            bot.changeHeadingRel(o * Math.PI / 24);
+            bot.changeHeadingRel(o * Math.PI / 32);
 
             if (canvas.circleIntersect(bot.headCircle, tailCircle)) {
                 bot.stage = 'circle';
@@ -1758,6 +1757,8 @@ var bot = window.bot = (function (window) {
             if (bot.snakeLength < bot.opt.followCircleLength + bot.followOffset) {
                 bot.stage = 'grow';
             }
+			
+			if (bot.snakeLength<1000) bot.followOffset=0;
 
             if (bot.currentFood && bot.stage !== 'grow') {
                 bot.currentFood = undefined;
