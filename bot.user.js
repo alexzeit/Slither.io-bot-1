@@ -401,13 +401,16 @@ var canvas = window.canvas = (function (window) {
 var bot = window.bot = (function (window) {
     return {
         isBotRunning: false,
-		frontCollision: false,
-		leftCollision: 1000000000,
-		rightCollision: 1000000000,
-		encircled: false,
-		encircleDanger:1,
-		lastAvoidAng: 1000,
-		lastHeading:0,
+	lookForFood: false,
+        manualFood: false,
+        frontCollision: false,
+        isCollision: 0,
+        leftCollision: 1000000000,
+        rightCollision: 1000000000,
+        encircled: false,
+        encircleDanger:1,
+        lastAvoidAng: 1000,
+        lastHeading:0,
         isBotEnabled: true,
         stage: 'grow',
         collisionPoints: [],
@@ -417,7 +420,7 @@ var bot = window.bot = (function (window) {
         foodTimeout: undefined,
         sectorBoxSide: 0,
         defaultAccel: 0,
-		followOffset:0,
+        followOffset:0,
         sectorBox: {},
         currentFood: {},
         opt: {
@@ -1771,6 +1774,7 @@ var bot = window.bot = (function (window) {
 					bot.followOffset=bot.snakeLength - bot.opt.followCircleLength + 30;
 					if (bot.checkCollision() ) {
 						isCollision=true;
+						bot.lookForFood = false;
 						if (bot.actionTimeout) {
 							window.clearTimeout(bot.actionTimeout);
 							bot.actionTimeout = window.setTimeout(
@@ -1790,6 +1794,8 @@ var bot = window.bot = (function (window) {
 				}
             } else if (bot.checkCollision() ) {
 				isCollision=true;
+		                    bot.lookForFood = !bot.manualFood;
+
                 if (bot.actionTimeout) {
                     window.clearTimeout(bot.actionTimeout);
                     bot.actionTimeout = window.setTimeout(
@@ -2124,7 +2130,7 @@ var userInterface = window.userInterface = (function (window, document) {
             if (window.playing) {
                 // Letter `T` to toggle bot
                 if (e.keyCode === 84) {
-                    bot.isBotEnabled = !bot.isBotEnabled;
+                    bot.manualFood = !bot.manualFood;
                 }
                 // Letter 'U' to toggle debugging (console)
                 if (e.keyCode === 85) {
@@ -2336,8 +2342,9 @@ var userInterface = window.userInterface = (function (window, document) {
             }
 
             if (window.playing && bot.isBotEnabled && window.snake !== null) {
-                window.onmousemove = function () { };
-                bot.isBotRunning = true;
+  window.onmousemove = function(b) {
+					if (bot.manualFood && bot.isCollision===0) original_onmousemove();
+				};
                 bot.go();
             } else if (bot.isBotEnabled && bot.isBotRunning) {
                 bot.isBotRunning = false;
