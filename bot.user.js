@@ -178,10 +178,6 @@ var canvasUtil = window.canvasUtil = (function() {
             };
         },
      // TODO what does window scale mean?
-        getScale: function() {
-            return window.gsc;
-        },
-
         // Map coordinates to Canvas coordinates.
         mapToCanvas: function(point) {
             var c = canvasUtil.mapToMouse(point);
@@ -933,8 +929,8 @@ var bot = window.bot = (function() {
 	
         manualFood: false,
 		isCollision: 0,
-		holdCollision: 5,
-		fencingSnake: 1,
+		holdCollision: 10,
+		fencingSnake: 0,
 		targetAcceleration: 0,
 		arcSize: Math.PI / 20,
 		mGoToAngle: Math.PI,
@@ -944,9 +940,9 @@ var bot = window.bot = (function() {
 		doRedraw: true,
 		resetZoomOnLowFPS: false,
 		lookForSnakeDelayCnt: 0,
-		lookForSnakeDelay: 14,
+		lookForSnakeDelay: 50,
 		isHunting: false,
-		targetSnake: 1,
+		targetSnake: 0,
 		minPredatorRadius: 5,
         isBotRunning: false,
         isBotEnabled: true,
@@ -980,7 +976,7 @@ var bot = window.bot = (function() {
             // If you wish to customise these, use
             // customBotOptions above
 			radiusMult: 10,
-            targetFps: 31,
+            targetFps: 30,
             // how many frames to delay action after collision
             collisionDelay: 10,
             // base speed
@@ -1014,14 +1010,12 @@ var bot = window.bot = (function() {
             // size of arc for collisionAngles
             arcSize: Math.PI / 8,
             // radius multiple for circle intersects
-            radiusMult: 10,
             // food cluster size to trigger acceleration
             // maximum angle of food to trigger acceleration
             foodAccelDa: Math.PI / 2,
             // how many frames per action
             foodAccelSz: 180,
             // maximum angle of food to trigger acceleration
-            foodAccelDa: Math.PI / 2,
             // how many frames per action
             actionFrames: 2,
             // how many frames to delay action after collision
@@ -3629,7 +3623,8 @@ var bot = window.bot = (function() {
         go: function() {
             bot.every();
                  scheduler.executeTasks();
-			if (bot.checkCollision()) {
+            
+			if (bot.checkCollision() ) {
                 bot.lookForFood = false;
 				bot.isHunting=false;
 				bot.targetSnake=0;
@@ -3640,21 +3635,17 @@ var bot = window.bot = (function() {
                 }
             } else {
 				var tAccel =  bot.defaultAccel;
-
-				//if mousefollow on
-				if(bot.mouseFollow){
-					bot.gotoAngle = bot.mGoToAngle;
-				}
-                bot.lookForFood = !bot.manualFood;
+                bot.gotoAngle = bot.mGoToAngle;
+                bot.lookForFood = bot.manualFood;
                 if (bot.foodTimeout === undefined) {
                     bot.foodTimeout = window.setTimeout(
-                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.foodFrames);
+                        bot.foodTimer, 1000 / bot.opt.targetFps * bot.foodFrames * 2);
                 }
 				
 				{
 					
 				
-					if (bot.predatorMode)
+					if (bot.stage == 'grow')
 					{
 							if (bot.currentFood && bot.currentFood.sz > bot.foodAccelSize * 2) {
 								bot.lookForSnakeDelayCnt = 0;
@@ -3859,7 +3850,7 @@ return 0;
                         {
                             return 0;
                         }
-i                 
+               
                        
                         return 402;
                     },
